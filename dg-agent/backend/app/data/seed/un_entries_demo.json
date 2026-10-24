@@ -1,0 +1,751 @@
+[
+ {
+  "un_number": "UN1203",
+  "proper_shipping_name": "MOTOR SPIRIT or GASOLINE or PETROL",
+  "hazard_class": "3",
+  "subsidiary_hazards": [],
+  "packing_groups": [
+   "II"
+  ],
+  "special_provisions": null,
+  "marine_pollutant": null,
+  "mode_data": {},
+  "section_ref": "Demo seed (no authoritative section reference)",
+  "synonyms": [
+   "gasoline",
+   "petrol",
+   "motor spirit",
+   "benzin"
+  ],
+  "cas_numbers": [
+   "86290-81-5"
+  ]
+ },
+ {
+  "un_number": "UN1202",
+  "proper_shipping_name": "GAS OIL or DIESEL FUEL or HEATING OIL, LIGHT",
+  "hazard_class": "3",
+  "subsidiary_hazards": [],
+  "packing_groups": [
+   "III"
+  ],
+  "special_provisions": null,
+  "marine_pollutant": null,
+  "mode_data": {},
+  "section_ref": "Demo seed (no authoritative section reference)",
+  "synonyms": [
+   "diesel",
+   "gas oil",
+   "heating oil"
+  ],
+  "cas_numbers": [
+   "68334-30-5"
+  ]
+ },
+ {
+  "un_number": "UN1090",
+  "proper_shipping_name": "ACETONE",
+  "hazard_class": "3",
+  "subsidiary_hazards": [],
+  "packing_groups": [
+   "II"
+  ],
+  "special_provisions": null,
+  "marine_pollutant": null,
+  "mode_data": {},
+  "section_ref": "Demo seed (no authoritative section reference)",
+  "synonyms": [
+   "propanone",
+   "dimethyl ketone"
+  ],
+  "cas_numbers": [
+   "67-64-1"
+  ]
+ },
+ {
+  "un_number": "UN1230",
+  "proper_shipping_name": "METHANOL",
+  "hazard_class": "3",
+  "subsidiary_hazards": [
+   "6.1"
+  ],
+  "packing_groups": [
+   "II"
+  ],
+  "special_provisions": null,
+  "marine_pollutant": null,
+  "mode_data": {},
+  "section_ref": "Demo seed (no authoritative section reference)",
+  "synonyms": [
+   "methyl alcohol",
+   "wood alcohol"
+  ],
+  "cas_numbers": [
+   "67-56-1"
+  ]
+ },
+ {
+  "un_number": "UN1170",
+  "proper_shipping_name": "ETHANOL or ETHANOL SOLUTION",
+  "hazard_class": "3",
+  "subsidiary_hazards": [],
+  "packing_groups": [
+   "II",
+   "III"
+  ],
+  "special_provisions": null,
+  "marine_pollutant": null,
+  "mode_data": {},
+  "section_ref": "Demo seed (no authoritative section reference)",
+  "synonyms": [
+   "ethyl alcohol",
+   "alcohol"
+  ],
+  "cas_numbers": [
+   "64-17-5"
+  ]
+ },
+ {
+  "un_number": "UN1219",
+  "proper_shipping_name": "ISOPROPANOL or ISOPROPYL ALCOHOL",
+  "hazard_class": "3",
+  "subsidiary_hazards": [],
+  "packing_groups": [
+   "II"
+  ],
+  "special_provisions": null,
+  "marine_pollutant": null,
+  "mode_data": {},
+  "section_ref": "Demo seed (no authoritative section reference)",
+  "synonyms": [
+   "2-propanol",
+   "IPA",
+   "isopropyl alcohol"
+  ],
+  "cas_numbers": [
+   "67-63-0"
+  ]
+ },
+ {
+  "un_number": "UN1173",
+  "proper_shipping_name": "ETHYL ACETATE",
+  "hazard_class": "3",
+  "subsidiary_hazards": [],
+  "packing_groups": [
+   "II"
+  ],
+  "special_provisions": null,
+  "marine_pollutant": null,
+  "mode_data": {},
+  "section_ref": "Demo seed (no authoritative section reference)",
+  "synonyms": [
+   "acetic acid ethyl ester"
+  ],
+  "cas_numbers": [
+   "141-78-6"
+  ]
+ },
+ {
+  "un_number": "UN1294",
+  "proper_shipping_name": "TOLUENE",
+  "hazard_class": "3",
+  "subsidiary_hazards": [],
+  "packing_groups": [
+   "II"
+  ],
+  "special_provisions": null,
+  "marine_pollutant": null,
+  "mode_data": {},
+  "section_ref": "Demo seed (no authoritative section reference)",
+  "synonyms": [
+   "methylbenzene",
+   "toluol"
+  ],
+  "cas_numbers": [
+   "108-88-3"
+  ]
+ },
+ {
+  "un_number": "UN1307",
+  "proper_shipping_name": "XYLENES",
+  "hazard_class": "3",
+  "subsidiary_hazards": [],
+  "packing_groups": [
+   "II",
+   "III"
+  ],
+  "special_provisions": null,
+  "marine_pollutant": null,
+  "mode_data": {},
+  "section_ref": "Demo seed (no authoritative section reference)",
+  "synonyms": [
+   "xylene",
+   "dimethylbenzene"
+  ],
+  "cas_numbers": [
+   "1330-20-7"
+  ]
+ },
+ {
+  "un_number": "UN1114",
+  "proper_shipping_name": "BENZENE",
+  "hazard_class": "3",
+  "subsidiary_hazards": [],
+  "packing_groups": [
+   "II"
+  ],
+  "special_provisions": null,
+  "marine_pollutant": null,
+  "mode_data": {},
+  "section_ref": "Demo seed (no authoritative section reference)",
+  "synonyms": [
+   "benzol"
+  ],
+  "cas_numbers": [
+   "71-43-2"
+  ]
+ },
+ {
+  "un_number": "UN1993",
+  "proper_shipping_name": "FLAMMABLE LIQUID, N.O.S.",
+  "hazard_class": "3",
+  "subsidiary_hazards": [],
+  "packing_groups": [
+   "I",
+   "II",
+   "III"
+  ],
+  "special_provisions": null,
+  "marine_pollutant": null,
+  "mode_data": {},
+  "section_ref": "Demo seed (no authoritative section reference)",
+  "synonyms": [],
+  "cas_numbers": []
+ },
+ {
+  "un_number": "UN1263",
+  "proper_shipping_name": "PAINT",
+  "hazard_class": "3",
+  "subsidiary_hazards": [],
+  "packing_groups": [
+   "I",
+   "II",
+   "III"
+  ],
+  "special_provisions": null,
+  "marine_pollutant": null,
+  "mode_data": {},
+  "section_ref": "Demo seed (no authoritative section reference)",
+  "synonyms": [
+   "paint",
+   "lacquer",
+   "enamel",
+   "varnish"
+  ],
+  "cas_numbers": []
+ },
+ {
+  "un_number": "UN1830",
+  "proper_shipping_name": "SULPHURIC ACID with more than 51% acid",
+  "hazard_class": "8",
+  "subsidiary_hazards": [],
+  "packing_groups": [
+   "II"
+  ],
+  "special_provisions": null,
+  "marine_pollutant": null,
+  "mode_data": {},
+  "section_ref": "Demo seed (no authoritative section reference)",
+  "synonyms": [
+   "sulfuric acid",
+   "oil of vitriol"
+  ],
+  "cas_numbers": [
+   "7664-93-9"
+  ]
+ },
+ {
+  "un_number": "UN1789",
+  "proper_shipping_name": "HYDROCHLORIC ACID",
+  "hazard_class": "8",
+  "subsidiary_hazards": [],
+  "packing_groups": [
+   "II",
+   "III"
+  ],
+  "special_provisions": null,
+  "marine_pollutant": null,
+  "mode_data": {},
+  "section_ref": "Demo seed (no authoritative section reference)",
+  "synonyms": [
+   "muriatic acid",
+   "hydrogen chloride solution"
+  ],
+  "cas_numbers": [
+   "7647-01-0"
+  ]
+ },
+ {
+  "un_number": "UN1823",
+  "proper_shipping_name": "SODIUM HYDROXIDE, SOLID",
+  "hazard_class": "8",
+  "subsidiary_hazards": [],
+  "packing_groups": [
+   "II"
+  ],
+  "special_provisions": null,
+  "marine_pollutant": null,
+  "mode_data": {},
+  "section_ref": "Demo seed (no authoritative section reference)",
+  "synonyms": [
+   "caustic soda",
+   "lye"
+  ],
+  "cas_numbers": [
+   "1310-73-2"
+  ]
+ },
+ {
+  "un_number": "UN1824",
+  "proper_shipping_name": "SODIUM HYDROXIDE SOLUTION",
+  "hazard_class": "8",
+  "subsidiary_hazards": [],
+  "packing_groups": [
+   "II",
+   "III"
+  ],
+  "special_provisions": null,
+  "marine_pollutant": null,
+  "mode_data": {},
+  "section_ref": "Demo seed (no authoritative section reference)",
+  "synonyms": [
+   "caustic soda solution",
+   "lye solution"
+  ],
+  "cas_numbers": [
+   "1310-73-2"
+  ]
+ },
+ {
+  "un_number": "UN1791",
+  "proper_shipping_name": "HYPOCHLORITE SOLUTION",
+  "hazard_class": "8",
+  "subsidiary_hazards": [],
+  "packing_groups": [
+   "II",
+   "III"
+  ],
+  "special_provisions": null,
+  "marine_pollutant": null,
+  "mode_data": {},
+  "section_ref": "Demo seed (no authoritative section reference)",
+  "synonyms": [
+   "sodium hypochlorite solution",
+   "bleach"
+  ],
+  "cas_numbers": [
+   "7681-52-9"
+  ]
+ },
+ {
+  "un_number": "UN2672",
+  "proper_shipping_name": "AMMONIA SOLUTION, relative density between 0.880 and 0.957 at 15 °C in water, with more than 10% but not more than 35% ammonia",
+  "hazard_class": "8",
+  "subsidiary_hazards": [],
+  "packing_groups": [
+   "III"
+  ],
+  "special_provisions": null,
+  "marine_pollutant": null,
+  "mode_data": {},
+  "section_ref": "Demo seed (no authoritative section reference)",
+  "synonyms": [
+   "ammonium hydroxide",
+   "aqueous ammonia"
+  ],
+  "cas_numbers": [
+   "1336-21-6"
+  ]
+ },
+ {
+  "un_number": "UN3264",
+  "proper_shipping_name": "CORROSIVE LIQUID, ACIDIC, INORGANIC, N.O.S.",
+  "hazard_class": "8",
+  "subsidiary_hazards": [],
+  "packing_groups": [
+   "I",
+   "II",
+   "III"
+  ],
+  "special_provisions": null,
+  "marine_pollutant": null,
+  "mode_data": {},
+  "section_ref": "Demo seed (no authoritative section reference)",
+  "synonyms": [],
+  "cas_numbers": []
+ },
+ {
+  "un_number": "UN1005",
+  "proper_shipping_name": "AMMONIA, ANHYDROUS",
+  "hazard_class": "2.3",
+  "subsidiary_hazards": [
+   "8"
+  ],
+  "packing_groups": [],
+  "special_provisions": null,
+  "marine_pollutant": null,
+  "mode_data": {},
+  "section_ref": "Demo seed (no authoritative section reference)",
+  "synonyms": [
+   "anhydrous ammonia"
+  ],
+  "cas_numbers": [
+   "7664-41-7"
+  ]
+ },
+ {
+  "un_number": "UN1017",
+  "proper_shipping_name": "CHLORINE",
+  "hazard_class": "2.3",
+  "subsidiary_hazards": [
+   "5.1",
+   "8"
+  ],
+  "packing_groups": [],
+  "special_provisions": null,
+  "marine_pollutant": null,
+  "mode_data": {},
+  "section_ref": "Demo seed (no authoritative section reference)",
+  "synonyms": [],
+  "cas_numbers": [
+   "7782-50-5"
+  ]
+ },
+ {
+  "un_number": "UN1978",
+  "proper_shipping_name": "PROPANE",
+  "hazard_class": "2.1",
+  "subsidiary_hazards": [],
+  "packing_groups": [],
+  "special_provisions": null,
+  "marine_pollutant": null,
+  "mode_data": {},
+  "section_ref": "Demo seed (no authoritative section reference)",
+  "synonyms": [],
+  "cas_numbers": [
+   "74-98-6"
+  ]
+ },
+ {
+  "un_number": "UN1075",
+  "proper_shipping_name": "PETROLEUM GASES, LIQUEFIED",
+  "hazard_class": "2.1",
+  "subsidiary_hazards": [],
+  "packing_groups": [],
+  "special_provisions": null,
+  "marine_pollutant": null,
+  "mode_data": {},
+  "section_ref": "Demo seed (no authoritative section reference)",
+  "synonyms": [
+   "LPG",
+   "liquefied petroleum gas"
+  ],
+  "cas_numbers": [
+   "68476-85-7"
+  ]
+ },
+ {
+  "un_number": "UN1066",
+  "proper_shipping_name": "NITROGEN, COMPRESSED",
+  "hazard_class": "2.2",
+  "subsidiary_hazards": [],
+  "packing_groups": [],
+  "special_provisions": null,
+  "marine_pollutant": null,
+  "mode_data": {},
+  "section_ref": "Demo seed (no authoritative section reference)",
+  "synonyms": [
+   "nitrogen"
+  ],
+  "cas_numbers": [
+   "7727-37-9"
+  ]
+ },
+ {
+  "un_number": "UN1072",
+  "proper_shipping_name": "OXYGEN, COMPRESSED",
+  "hazard_class": "2.2",
+  "subsidiary_hazards": [
+   "5.1"
+  ],
+  "packing_groups": [],
+  "special_provisions": null,
+  "marine_pollutant": null,
+  "mode_data": {},
+  "section_ref": "Demo seed (no authoritative section reference)",
+  "synonyms": [
+   "oxygen"
+  ],
+  "cas_numbers": [
+   "7782-44-7"
+  ]
+ },
+ {
+  "un_number": "UN2014",
+  "proper_shipping_name": "HYDROGEN PEROXIDE, AQUEOUS SOLUTION with not less than 20% but not more than 60% hydrogen peroxide",
+  "hazard_class": "5.1",
+  "subsidiary_hazards": [
+   "8"
+  ],
+  "packing_groups": [
+   "II"
+  ],
+  "special_provisions": null,
+  "marine_pollutant": null,
+  "mode_data": {},
+  "section_ref": "Demo seed (no authoritative section reference)",
+  "synonyms": [
+   "hydrogen peroxide"
+  ],
+  "cas_numbers": [
+   "7722-84-1"
+  ]
+ },
+ {
+  "un_number": "UN1942",
+  "proper_shipping_name": "AMMONIUM NITRATE with not more than 0.2% total combustible material",
+  "hazard_class": "5.1",
+  "subsidiary_hazards": [],
+  "packing_groups": [
+   "III"
+  ],
+  "special_provisions": null,
+  "marine_pollutant": null,
+  "mode_data": {},
+  "section_ref": "Demo seed (no authoritative section reference)",
+  "synonyms": [
+   "ammonium nitrate"
+  ],
+  "cas_numbers": [
+   "6484-52-2"
+  ]
+ },
+ {
+  "un_number": "UN1748",
+  "proper_shipping_name": "CALCIUM HYPOCHLORITE, DRY",
+  "hazard_class": "5.1",
+  "subsidiary_hazards": [],
+  "packing_groups": [
+   "II",
+   "III"
+  ],
+  "special_provisions": null,
+  "marine_pollutant": null,
+  "mode_data": {},
+  "section_ref": "Demo seed (no authoritative section reference)",
+  "synonyms": [
+   "calcium hypochlorite",
+   "bleaching powder"
+  ],
+  "cas_numbers": [
+   "7778-54-3"
+  ]
+ },
+ {
+  "un_number": "UN1428",
+  "proper_shipping_name": "SODIUM",
+  "hazard_class": "4.3",
+  "subsidiary_hazards": [],
+  "packing_groups": [
+   "I"
+  ],
+  "special_provisions": null,
+  "marine_pollutant": null,
+  "mode_data": {},
+  "section_ref": "Demo seed (no authoritative section reference)",
+  "synonyms": [
+   "sodium metal"
+  ],
+  "cas_numbers": [
+   "7440-23-5"
+  ]
+ },
+ {
+  "un_number": "UN1350",
+  "proper_shipping_name": "SULPHUR",
+  "hazard_class": "4.1",
+  "subsidiary_hazards": [],
+  "packing_groups": [
+   "III"
+  ],
+  "special_provisions": null,
+  "marine_pollutant": null,
+  "mode_data": {},
+  "section_ref": "Demo seed (no authoritative section reference)",
+  "synonyms": [
+   "sulfur"
+  ],
+  "cas_numbers": [
+   "7704-34-9"
+  ]
+ },
+ {
+  "un_number": "UN1593",
+  "proper_shipping_name": "DICHLOROMETHANE",
+  "hazard_class": "6.1",
+  "subsidiary_hazards": [],
+  "packing_groups": [
+   "III"
+  ],
+  "special_provisions": null,
+  "marine_pollutant": null,
+  "mode_data": {},
+  "section_ref": "Demo seed (no authoritative section reference)",
+  "synonyms": [
+   "methylene chloride",
+   "DCM"
+  ],
+  "cas_numbers": [
+   "75-09-2"
+  ]
+ },
+ {
+  "un_number": "UN1710",
+  "proper_shipping_name": "TRICHLOROETHYLENE",
+  "hazard_class": "6.1",
+  "subsidiary_hazards": [],
+  "packing_groups": [
+   "III"
+  ],
+  "special_provisions": null,
+  "marine_pollutant": null,
+  "mode_data": {},
+  "section_ref": "Demo seed (no authoritative section reference)",
+  "synonyms": [
+   "TCE",
+   "trichloroethene"
+  ],
+  "cas_numbers": [
+   "79-01-6"
+  ]
+ },
+ {
+  "un_number": "UN1888",
+  "proper_shipping_name": "CHLOROFORM",
+  "hazard_class": "6.1",
+  "subsidiary_hazards": [],
+  "packing_groups": [
+   "III"
+  ],
+  "special_provisions": null,
+  "marine_pollutant": null,
+  "mode_data": {},
+  "section_ref": "Demo seed (no authoritative section reference)",
+  "synonyms": [
+   "trichloromethane"
+  ],
+  "cas_numbers": [
+   "67-66-3"
+  ]
+ },
+ {
+  "un_number": "UN1547",
+  "proper_shipping_name": "ANILINE",
+  "hazard_class": "6.1",
+  "subsidiary_hazards": [],
+  "packing_groups": [
+   "II"
+  ],
+  "special_provisions": null,
+  "marine_pollutant": null,
+  "mode_data": {},
+  "section_ref": "Demo seed (no authoritative section reference)",
+  "synonyms": [
+   "aminobenzene",
+   "phenylamine"
+  ],
+  "cas_numbers": [
+   "62-53-3"
+  ]
+ },
+ {
+  "un_number": "UN2810",
+  "proper_shipping_name": "TOXIC LIQUID, ORGANIC, N.O.S.",
+  "hazard_class": "6.1",
+  "subsidiary_hazards": [],
+  "packing_groups": [
+   "I",
+   "II",
+   "III"
+  ],
+  "special_provisions": null,
+  "marine_pollutant": null,
+  "mode_data": {},
+  "section_ref": "Demo seed (no authoritative section reference)",
+  "synonyms": [],
+  "cas_numbers": []
+ },
+ {
+  "un_number": "UN3082",
+  "proper_shipping_name": "ENVIRONMENTALLY HAZARDOUS SUBSTANCE, LIQUID, N.O.S.",
+  "hazard_class": "9",
+  "subsidiary_hazards": [],
+  "packing_groups": [
+   "III"
+  ],
+  "special_provisions": null,
+  "marine_pollutant": null,
+  "mode_data": {},
+  "section_ref": "Demo seed (no authoritative section reference)",
+  "synonyms": [],
+  "cas_numbers": []
+ },
+ {
+  "un_number": "UN3077",
+  "proper_shipping_name": "ENVIRONMENTALLY HAZARDOUS SUBSTANCE, SOLID, N.O.S.",
+  "hazard_class": "9",
+  "subsidiary_hazards": [],
+  "packing_groups": [
+   "III"
+  ],
+  "special_provisions": null,
+  "marine_pollutant": null,
+  "mode_data": {},
+  "section_ref": "Demo seed (no authoritative section reference)",
+  "synonyms": [],
+  "cas_numbers": []
+ },
+ {
+  "un_number": "UN3480",
+  "proper_shipping_name": "LITHIUM ION BATTERIES (including lithium ion polymer batteries)",
+  "hazard_class": "9",
+  "subsidiary_hazards": [],
+  "packing_groups": [],
+  "special_provisions": null,
+  "marine_pollutant": null,
+  "mode_data": {},
+  "section_ref": "Demo seed (no authoritative section reference)",
+  "synonyms": [
+   "lithium ion battery",
+   "li-ion battery"
+  ],
+  "cas_numbers": []
+ },
+ {
+  "un_number": "UN1845",
+  "proper_shipping_name": "CARBON DIOXIDE, SOLID",
+  "hazard_class": "9",
+  "subsidiary_hazards": [],
+  "packing_groups": [],
+  "special_provisions": null,
+  "marine_pollutant": null,
+  "mode_data": {},
+  "section_ref": "Demo seed (no authoritative section reference)",
+  "synonyms": [
+   "dry ice"
+  ],
+  "cas_numbers": [
+   "124-38-9"
+  ]
+ }
+]

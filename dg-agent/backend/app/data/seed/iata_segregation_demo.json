@@ -1,0 +1,33 @@
+{
+ "pairs": [
+  {
+   "a": "3",
+   "b": "5.1",
+   "requirement": "segregate",
+   "note": "Flammable liquids / oxidizers"
+  },
+  {
+   "a": "4.2",
+   "b": "5.1",
+   "requirement": "segregate",
+   "note": "Spontaneously combustible / oxidizers"
+  },
+  {
+   "a": "4.3",
+   "b": "8",
+   "requirement": "segregate",
+   "note": "Dangerous when wet / corrosives"
+  }
+ ],
+ "class1_rule": "Class 1 (other than Division 1.4 compatibility group S) requires manual verification against the explosives loading provisions.",
+ "manual_checks": [
+  "Toxic (6.1) and infectious substances (6.2) separation from foodstuffs, feed and live animals",
+  "Radioactive material (Class 7) separation distances and transport index limits",
+  "Self-reactive substances (4.1) and organic peroxides (5.2) protection from direct sunlight and heat",
+  "Cryogenic liquids and dry ice: ventilation and quantity limits per aircraft/compartment",
+  "Magnetized material positioning relative to aircraft compasses",
+  "Cargo Aircraft Only packages: accessibility requirements",
+  "State and operator variations"
+ ],
+ "section_ref": "IATA DGR package segregation table (demo partial transcription; confirm reference in applicable edition)"
+}
