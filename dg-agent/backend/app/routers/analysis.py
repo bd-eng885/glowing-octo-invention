@@ -212,12 +212,14 @@ class ErpIn(SaveOpts):
     site: dict = Field(default_factory=dict)
     substances: list[dict] = Field(default_factory=list)
     contacts: list[dict] = Field(default_factory=list)
+    capabilities: dict = Field(default_factory=dict)  # trained_hazmat_team: yes/no, ...
 
 
 @router.post("/erp/generate")
 def erp_generate(body: ErpIn, db: Session = Depends(get_db), user: User = Depends(require("create_report"))):
     try:
-        res = erp.generate(db, body.scenario, body.site, body.substances, body.contacts, user.full_name or user.email)
+        res = erp.generate(db, body.scenario, body.site, body.substances, body.contacts, user.full_name or user.email,
+                           body.capabilities)
     except ValueError as e:
         raise HTTPException(422, str(e))
     return _maybe_save(db, user, body, "erp", res["title"], body.model_dump(), res)

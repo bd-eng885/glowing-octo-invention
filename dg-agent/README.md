@@ -23,7 +23,8 @@ The demo users are `admin@`, `approver@`, `reviewer@`, `operator@` and `viewer@d
 
 **Production (Docker):** `cp .env.example .env`, set the secrets, then run `POSTGRES_PASSWORD=... docker compose up --build`. See [docs/OPERATIONS.md](docs/OPERATIONS.md).
 
-**Tests:** `cd backend && python -m pytest -q`, which runs 32 tests on SQLite. For PostgreSQL, set `TEST_DATABASE_URL=postgresql+psycopg://...`.
+**Tests:** `cd backend && python -m pytest -q` runs 43 tests (acceptance + regression) on SQLite. For PostgreSQL, set `TEST_DATABASE_URL=postgresql+psycopg://...`.
+With both servers running, the end-to-end checks are: `cd e2e && python3 make_docs.py && node ui_smoke.js && python3 api_probe.py` (Playwright browser test plus a live API probe).
 
 ## Documentation
 
@@ -32,6 +33,7 @@ The demo users are `admin@`, `approver@`, `reviewer@`, `operator@` and `viewer@d
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Architecture, stack choices and trade-offs, module map, safety design |
 | [docs/REGULATORY_DATA.md](docs/REGULATORY_DATA.md) | Data model, edition control, licensing, import and verification procedure |
 | [docs/OPERATIONS.md](docs/OPERATIONS.md) | Deployment, configuration, security, backup, operating procedures |
+| [docs/VALIDATION_REPORT.md](docs/VALIDATION_REPORT.md) | Latest validation run: test results, defects fixed, regulatory data audit, per-module PASS/PARTIAL/NOT VERIFIED |
 | [docs/schema.postgres.sql](docs/schema.postgres.sql) | Database schema (PostgreSQL) |
 | `backend/tests/test_acceptance.py` | Acceptance tests mapped to the 17 required scenarios |
 
@@ -44,9 +46,9 @@ The demo users are `admin@`, `approver@`, `reviewer@`, `operator@` and `viewer@d
 | UN / IMDG / IATA verification | Field-by-field PSN, class, subsidiary, PG, SP and marine-pollutant checks. N.O.S. technical-name checks and spelling-variant handling. Cross-checks between documents (SDS, DGD, marks, manifest). Five statuses, with the final status capped by data authority. IMDG and IATA are strictly separate. Conflicting-source and superseded-edition handling. |
 | Segregation checker | Deterministic engine that evaluates every pair, applies the most stringent primary or subsidiary hazard, and handles same-CTU and arrangement logic. Produces a matrix and colour map, records assumptions, and returns HOLD or CONFLICT decisions. Separate IMDG, IATA and warehouse paths. |
 | Chemical compatibility | Reactive-group screening (acid/base, hypochlorite, oxidiser/flammable, water-reactive and others), labelled screening only |
-| SDS analyzer | PDF text layer → pdftotext → OCR (English and Arabic) fallback, plus image OCR. Parses the 16-section structure, Section 14, CAS and H-statements. Flags contradictions, missing sections and prompt-injection text. Upload validation by file signature. |
+| SDS analyzer | PDF text layer → pdftotext → OCR (English and Arabic) fallback, plus image OCR. Parses the 16-section structure, Section 14 (colon, no-colon, next-line and mode-qualified layouts; OCR "Il"→"II" repair, flagged), CAS and H-statements. Tested on synthetic documents only. Flags contradictions, missing sections and prompt-injection text. Upload validation by file signature. |
 | Spill response | Escalation triggers, immediate priorities, hazard assessment by class, "do NOT" precautions, references, containment withheld when unsafe, PPE, medical, waste and notifications |
-| ERP generator | All 18 required sections. Missing site data is marked `[REQUIRED INPUT]`. Exports to PDF and Word. |
+| ERP generator | All 18 required sections. Takes site details, contacts and response capabilities; never assumes a trained hazmat team. Section 18 lists library sources with their real verification state. Missing data is marked `[REQUIRED INPUT]`. Exports to PDF (Arabic supported) and Word. |
 | Container inspection | 13-point checklist, photo upload, visual observations kept separate from verified non-compliance, risk rating, corrective actions, and STOP / HOLD outcomes |
 | Risk assessment | Configurable risk matrices (validated). HIRA, JSA, chemical RA, RCA, toolbox talk, drill evaluation and spill incident templates. |
 | Reports & audit | Save any result as a report. Submit → review → approve/reject, with no self-approval, a required approval comment and role checks. CAPA register. Exports to PDF, DOCX, XLSX and CSV. Hash-chained audit log, made append-only by database triggers. |
@@ -58,7 +60,8 @@ The demo users are `admin@`, `approver@`, `reviewer@`, `operator@` and `viewer@d
 - **No licensed regulatory content.** The IMDG Dangerous Goods List, EmS, stowage and segregation codes (column 16b), IATA packing instructions, quantity limits, and State and operator variations must be lawfully supplied and verified.
 - The IMDG engine covers the general class-versus-class table only. Individual DGL segregation codes, segregation-group rules, Class 1 compatibility, and container-ship stowage geometry are listed as manual checks.
 - The IATA segregation seed is a 3-pair partial subset, so every IATA result is HOLD.
-- Arabic covers navigation and common labels. Module body text and the PDF exports are English (Word exports support Arabic text). Arabic OCR quality has not been benchmarked.
+- Arabic covers navigation and common labels; most module form labels and result text are English (measured: 4 of 20 labels on the spill page). Arabic text in data renders in PDF and Word exports. Arabic OCR quality has not been benchmarked.
+- SDS extraction has not been tested against a corpus of real manufacturer SDSs.
 - AI explanations (optional, off by default) are implemented behind a citation guard but have not been exercised against a live model in this environment.
 - Docker images were written but not built here (no Docker daemon available). Not yet built: object storage, encryption at rest, SSO/MFA, refresh tokens, rate limiting, Alembic migrations, and background OCR jobs for large scans.
 

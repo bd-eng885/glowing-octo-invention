@@ -68,9 +68,9 @@ function Dashboard() {
       <div className="tiles">
         {cov && Object.values(cov).map((c: Json) => (
           <div key={c.mode} className="tile">
-            <div className="tile-label">{c.mode} dataset</div>
-            <Badge s={c.authoritative_content_available ? "VERIFIED DATA" : c.content_available ? "DEMO / UNVERIFIED ONLY" : "NOT LOADED"} />
-            <div className="small muted">{c.sources.length} source record(s)</div>
+            <div className="tile-label">{c.mode} dangerous goods list</div>
+            <Badge s={c.dgl_state} />
+            <div className="small muted">{c.dgl_entries} entries · rule tables: {c.rule_table_state.toLowerCase()} · {c.sources.length} source record(s)</div>
           </div>
         ))}
         <div className="tile"><div className="tile-label">Pending review</div><div className="big">{pending}</div></div>

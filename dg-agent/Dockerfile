@@ -7,7 +7,7 @@ COPY frontend/ ./
 RUN npm run build
 
 FROM python:3.13-slim
-RUN apt-get update && apt-get install -y --no-install-recommends tesseract-ocr tesseract-ocr-ara poppler-utils \
+RUN apt-get update && apt-get install -y --no-install-recommends tesseract-ocr tesseract-ocr-ara poppler-utils fonts-dejavu-core \
     && rm -rf /var/lib/apt/lists/* && useradd -m -u 10001 app
 WORKDIR /app/backend
 COPY backend/requirements.txt ./

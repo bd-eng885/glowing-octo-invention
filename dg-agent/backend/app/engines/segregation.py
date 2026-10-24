@@ -208,6 +208,23 @@ def evaluate(db: Session, items: list[dict], mode: str, arrangement: str | None 
         r.update(a=a["id"], b=b["id"])
         pairs.append(r)
         matrix[a["id"]][b["id"]] = matrix[b["id"]][a["id"]] = {"status": r["status"], "code": r.get("code")}
+    # Non-regulatory chemistry screening, so that e.g. an acid and an alkali of the same class are not
+    # presented as unproblematic just because the general class table shows no requirement.
+    screening = compat.screen(items)
+    by_pair = {frozenset((p["a"], p["b"])): p for p in screening["pairs"]}
+    for p in pairs:
+        sp = by_pair.get(frozenset((p["a"], p["b"])))
+        if sp and sp["flags"]:
+            p.setdefault("conditions", []).extend(
+                f"NON-REGULATORY screening ({f['severity']}): {f['reason']} Check DGL segregation provisions "
+                "(e.g. segregation groups) and SDS Section 10." for f in sp["flags"])
+            p["screening_flags"] = sp["flags"]
+            if p["status"] in ("no_general_requirement", "no_pair_in_loaded_subset") and \
+                    any(f["severity"] == "high" for f in sp["flags"]):
+                p["status"] = "hold"
+                p.setdefault("issues", []).append("Chemical compatibility screening flags a hazardous reaction; "
+                                                  "the general table alone cannot clear this pair.")
+            matrix[p["a"]][p["b"]] = matrix[p["b"]][p["a"]] = {"status": p["status"], "code": p.get("code")}
     statuses = {p["status"] for p in pairs}
     if "conflict" in statuses:
         decision = CONFLICT

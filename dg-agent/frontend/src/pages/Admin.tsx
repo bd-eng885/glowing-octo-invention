@@ -19,7 +19,7 @@ export function ReportsPage() {
   const load = () => {
     api.get("/api/reports").then(setList).catch(setError);
     api.get("/api/capa").then(setCapa).catch(() => {});
-    api.get("/api/audit?limit=100").then(setAudit).catch(() => {});
+    if (user?.permissions.includes("view_audit")) api.get("/api/audit?limit=100").then(setAudit).catch(() => {});
   };
   useEffect(load, []);
   async function act(action: string) {
@@ -72,11 +72,11 @@ export function ReportsPage() {
                 try { await api.patch(`/api/capa/${c.id}`, { status: "closed", closure_note: note }); load(); } catch (e) { setError(e); }
               }}>Close</button>}</td></tr>))}</tbody></table></div>
       </Card>
-      <Card title="Audit trail (tamper-evident, append-only)" actions={<button className="ghost" onClick={async () => setChain(await api.get("/api/audit/verify"))}>Verify hash chain</button>}>
+      {can("view_audit") && <Card title="Audit trail (tamper-evident, append-only)" actions={<button className="ghost" onClick={async () => setChain(await api.get("/api/audit/verify"))}>Verify hash chain</button>}>
         {chain && <div className={`alert ${chain.valid ? "info" : "bad"}`}>{chain.valid ? `Chain valid — ${chain.checked} records verified.` : `CHAIN BROKEN at record ${chain.broken_at_id}`}</div>}
         <div className="scroll"><table className="table small"><thead><tr><th>#</th><th>Time</th><th>User</th><th>Action</th><th>Entity</th><th>Hash</th></tr></thead>
           <tbody>{auditRows.map((a) => <tr key={a.id}><td>{a.id}</td><td>{a.ts.slice(0, 19)}</td><td>{a.user_email || "system"}</td><td>{a.action}</td><td>{a.entity} {a.entity_id}</td><td><code>{a.hash}</code></td></tr>)}</tbody></table></div>
-      </Card>
+      </Card>}
     </div>
   );
 }

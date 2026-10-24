@@ -23,11 +23,11 @@ PBKDF2_ITERATIONS = 310_000
 ROLE_PERMISSIONS: dict[str, set[str]] = {
     "viewer": {"read"},
     "operator": {"read", "analyze", "create_report", "upload", "submit_review"},
-    "dg_reviewer": {"read", "analyze", "create_report", "upload", "submit_review", "review"},
+    "dg_reviewer": {"read", "analyze", "create_report", "upload", "submit_review", "review", "view_audit"},
     "dgsa_approver": {"read", "analyze", "create_report", "upload", "submit_review", "review",
-                      "approve", "verify_regulatory_data"},
+                      "approve", "verify_regulatory_data", "view_audit"},
     "admin": {"read", "analyze", "create_report", "upload", "submit_review", "manage_users",
-              "manage_sources", "manage_config"},
+              "manage_sources", "manage_config", "view_audit"},
 }
 ROLES = tuple(ROLE_PERMISSIONS)
 

@@ -178,12 +178,12 @@ def update_capa(cid: int, body: CapaPatch, db: Session = Depends(get_db), user: 
 
 # ------------------------------------------------------------------ audit
 @router.get("/audit")
-def audit_list(limit: int = 200, db: Session = Depends(get_db), _: User = Depends(require("read"))):
+def audit_list(limit: int = 200, db: Session = Depends(get_db), _: User = Depends(require("view_audit"))):
     rows = db.execute(select(AuditLog).order_by(AuditLog.id.desc()).limit(min(limit, 1000))).scalars()
     return [{"id": a.id, "ts": a.ts, "user_email": a.user_email, "action": a.action, "entity": a.entity,
              "entity_id": a.entity_id, "detail": a.detail, "hash": a.hash[:16]} for a in rows]
 
 
 @router.get("/audit/verify")
-def audit_verify(db: Session = Depends(get_db), _: User = Depends(current_user)):
+def audit_verify(db: Session = Depends(get_db), _: User = Depends(require("view_audit"))):
     return audit.verify_chain(db)

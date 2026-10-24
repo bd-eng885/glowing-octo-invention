@@ -110,17 +110,27 @@ def detect_injection(text: str) -> list[str]:
 
 # ------------------------------------------------------------------ SDS parsing
 SECTION_RE = re.compile(r"(?im)^\s*(?:section|القسم)\s*(\d{1,2})\b|^\s*(\d{1,2})\s*[.:)]\s+[A-Z؀-ۿ]")
+# A label may be followed by an optional "(qualifier)", an optional ':' or '-', and the
+# value either on the same line or on the next line (common EU SDS layout:
+# "14.2. UN proper shipping name" <newline> "ACETONE").
+_SEP = r"[ \t]*(?:\([^)\n]*\))?[ \t]*[:\-]?[ \t]*(?:\r?\n[ \t]*)?"
 FIELD_PATTERNS = {
-    "product_name": [r"(?im)^\s*(?:product name|trade name|product identifier|اسم المنتج)\s*[:\-]\s*(.+)$"],
+    "product_name": [r"(?im)^\s*(?:product name|trade name|product identifier|اسم المنتج)" + _SEP + r"(\S[^\n]*)$"],
     "manufacturer": [r"(?im)^\s*(?:manufacturer|supplier|company|المورد|الشركة المصنعة)\s*[:\-]\s*(.+)$"],
-    "proper_shipping_name": [r"(?im)(?:un proper shipping name|proper shipping name|shipping name|الاسم الرسمي للشحن)\s*[:\-]\s*(.+)$"],
-    "hazard_class": [r"(?im)(?:transport hazard class(?:\(es\))?|hazard class|class|رتبة الخطر|الفئة)\s*[:\-]\s*([0-9](?:\.[0-9])?(?:\s*\(\s*[0-9.,\s]+\))?)"],
-    "packing_group": [r"(?im)(?:packing group|مجموعة التعبئة)\s*[:\-]\s*(I{1,3}|[123]|-|n/?a|none)\b"],
-    "marine_pollutant": [r"(?im)(?:marine pollutant|environmental hazards?|ملوث بحري)\s*[:\-]\s*(yes|no|نعم|لا|[a-z ]+)"],
+    "proper_shipping_name": [r"(?im)(?:un proper shipping name|proper shipping name|shipping name|الاسم الرسمي للشحن)"
+                             + _SEP + r"(\S[^\n]*)$"],
+    "hazard_class": [r"(?im)(?:transport hazard class(?:\(es\))?|hazard class|رتبة الخطر|الفئة)" + _SEP
+                     + r"([1-9](?:\.[1-6])?(?![\d.])(?:[ \t]*\([ \t]*[0-9.,\s]+\))?)",
+                     r"(?im)^\s*class\s*[:\-]\s*([1-9](?:\.[1-6])?(?![\d.])(?:[ \t]*\([ \t]*[0-9.,\s]+\))?)"],
+    "packing_group": [r"(?im)(?:packing group|مجموعة التعبئة)" + _SEP
+                      + r"(III|II|I|[IlL1|]{1,3}|[123]|-|n/?a|none|not applicable)(?![A-Za-z0-9])"],
+    "marine_pollutant": [r"(?im)(?:marine pollutant|ملوث بحري)" + _SEP + r"(yes|no|نعم|لا|[a-z][a-z ]*)",
+                         r"(?im)(?:environmental hazards?)\s*[:\-]\s*(yes|no|نعم|لا|[a-z][a-z ]*)"],
     "flash_point": [r"(?im)flash\s*point\s*[:\-]?\s*([<>]?\s*-?\d+(?:[.,]\d+)?\s*°?\s*[CF])"],
-    "revision_date": [r"(?im)(?:revision date|date of revision|تاريخ المراجعة)\s*[:\-]\s*([0-9./\-]+)"],
+    "revision_date": [r"(?im)(?:revision date|date of revision|تاريخ المراجعة)" + _SEP + r"([0-9./\-]+)"],
 }
-UN_LABEL_RE = re.compile(r"(?im)(?:un\s*(?:number|no\.?)|id\s*no\.?|رقم الأمم المتحدة)\s*[:\-]?\s*((?:UN|ID)?\s*[0-9OIlS]{4})")
+UN_LABEL_RE = re.compile(r"(?im)(?:un[\s\-]*(?:number|no\.?)|id\s*no\.?|رقم الأمم المتحدة)[^\n:]{0,20}?[:\-]?\s*"
+                         r"((?:UN|ID)?\s*[0-9OIlS]{4})")
 NOT_REGULATED_RE = re.compile(r"(?i)\bnot (?:regulated|classified) (?:as dangerous|for transport)|\bnot dangerous goods\b")
 
 
@@ -162,6 +172,12 @@ def parse_sds(text: str) -> dict:
             un_vals.append(un)
             warnings += notes
     distinct_un = sorted(set(un_vals))
+    raw_pg = fields["packing_group"]
+    if raw_pg and re.fullmatch(r"[IlL1|]{1,3}", raw_pg) and raw_pg not in ("I", "II", "III", "1"):
+        fixed = re.sub(r"[lL1|]", "I", raw_pg)
+        warnings.append(f"Packing group read as '{raw_pg}' and interpreted as '{fixed}' (likely OCR confusion). "
+                        "Confirm against the original document.")
+        fields["packing_group"] = fixed
     hclass = fields["hazard_class"]
     sub = []
     if hclass and "(" in hclass:
@@ -180,6 +196,14 @@ def parse_sds(text: str) -> dict:
     if 14 in sections and not distinct_un and not not_reg:
         findings.append({"severity": "high", "finding": "Section 14 present but no UN number and no explicit "
                          "'not regulated' statement."})
+    if distinct_un and not not_reg:
+        for key, label in (("proper_shipping_name", "Proper Shipping Name"), ("hazard_class", "transport hazard class")):
+            if not fields[key]:
+                findings.append({"severity": "medium", "finding": f"{label} could not be extracted from Section 14 — "
+                                 "read it from the original document."})
+        if not fields["packing_group"]:
+            findings.append({"severity": "low", "finding": "Packing group not extracted from Section 14 (it may be "
+                             "not applicable, e.g. for gases or articles) — confirm from the original document."})
     if not_reg and hstat:
         findings.append({"severity": "medium", "finding": "SDS states not regulated for transport while GHS hazard "
                          "statements are present. GHS and transport classifications differ — confirm the transport "

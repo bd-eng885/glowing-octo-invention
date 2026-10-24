@@ -49,16 +49,40 @@ def _entries_for(db: Session, un: str | None = None, rule_set: str | None = None
 
 
 def mode_coverage(db: Session, mode: str, today: dt.date | None = None) -> dict:
-    """Which datasets back a given mode right now."""
+    """Which datasets back a given mode right now.
+
+    Dangerous Goods List entries and rule tables are reported separately: a loaded segregation
+    table does not mean any DGL entries for that mode exist.
+    """
+    from ..models import RuleTable
+
     srcs = db.execute(select(RegulatorySource).where(RegulatorySource.rule_set == mode)).scalars().all()
     recs = []
     for s in srcs:
         r = source_record(s, today=today)
         r["content_loaded"] = s.content_loaded
+        r["dgl_entries"] = len(s.entries)
+        r["verified_entries"] = sum(1 for e in s.entries if e.verification_status == "verified")
+        r["rule_tables"] = [t.code for t in db.execute(select(RuleTable).where(RuleTable.source_id == s.id)).scalars()]
         recs.append(r)
-    usable = [r for r in recs if r["content_loaded"] and r["source_status"] == "current"]
-    return {"mode": mode, "sources": recs, "content_available": bool(usable),
-            "authoritative_content_available": any(r["source_verification_status"] == "verified" for r in usable)}
+    current = [r for r in recs if r["source_status"] == "current"]
+    dgl = [r for r in current if r["dgl_entries"]]
+    tables = [r for r in current if r["rule_tables"]]
+
+    def state(rows, verified_key):
+        if not rows:
+            return "NOT LOADED"
+        if any(r["source_verification_status"] == "verified" and verified_key(r) for r in rows):
+            return "VERIFIED DATA"
+        return "DEMO / UNVERIFIED ONLY"
+
+    return {"mode": mode, "sources": recs,
+            "dgl_entries": sum(r["dgl_entries"] for r in dgl),
+            "dgl_state": state(dgl, lambda r: r["verified_entries"] > 0),
+            "rule_table_state": state(tables, lambda r: True),
+            "content_available": bool(dgl or tables),
+            "authoritative_content_available": any(r["source_verification_status"] == "verified" and r["verified_entries"]
+                                                   for r in dgl)}
 
 
 def labels_for(entry: DGEntry, mode: str) -> dict:
@@ -447,7 +471,20 @@ def identify(db: Session, name: str | None = None, un: str | None = None, cas: s
                      ("flash_point", "flash point / classification test data")]:
         if not context.get(k):
             missing.append(label)
-    if not results:
+    matched_uns = {h["entry"].un_number for h in hits.values() if any("UN number" in r for r in h["reasons"])}
+    unmatched_uns = [u for u in dict.fromkeys(uns) if u not in matched_uns]
+    for u in unmatched_uns:
+        notes.append(f"{u} was supplied/extracted but no entry for it is loaded. Its classification cannot be checked; "
+                     "candidates below (if any) come from other identifiers and may not describe this product.")
+    if cas_list and (len(cas_list) > 1 or unmatched_uns):
+        notes.append("CAS-based candidates describe the pure substance. A mixture or solution may be classified "
+                     "differently (e.g. under a generic or N.O.S. entry); concentration and test data decide.")
+    if unmatched_uns:
+        overall = {"category": "UNKNOWN", "category_description": CATEGORIES["UNKNOWN"],
+                   "message": f"Declared/extracted UN number(s) {', '.join(unmatched_uns)} not found in loaded data. "
+                              "Candidates from CAS/name are shown for reference only. Absence of data is not "
+                              "evidence that the goods are not dangerous."}
+    elif not results:
         overall = {"category": "UNKNOWN", "category_description": CATEGORIES["UNKNOWN"],
                    "message": "No match in the loaded datasets. This does NOT mean the product is non-dangerous. "
                               "Obtain the SDS (Section 14), composition and test data and refer to a qualified "
@@ -460,5 +497,5 @@ def identify(db: Session, name: str | None = None, un: str | None = None, cas: s
                     "transport classification: a product may be GHS-hazardous without being regulated for a given "
                     "transport mode, and vice versa.")
     return {"mode": mode, "overall": overall, "candidates": results, "extracted_un_numbers": uns,
-            "extracted_cas": cas_list, "notes": notes, "missing_information": missing, "ghs_note": ghs_note,
+            "extracted_cas": cas_list, "unmatched_un_numbers": unmatched_uns, "notes": notes, "missing_information": missing, "ghs_note": ghs_note,
             "categories": CATEGORIES, "requires_human_review": True}

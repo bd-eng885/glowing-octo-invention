@@ -7,6 +7,9 @@ from __future__ import annotations
 
 import csv
 import io
+import json
+import os
+import re
 from typing import Any
 
 from ..models import Report
@@ -182,6 +185,47 @@ def to_docx(report: Report) -> bytes:
     return out.getvalue()
 
 
+_FONT_CANDIDATES = [os.getenv("PDF_FONT_PATH", ""), "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+                    "/usr/share/fonts/dejavu/DejaVuSans.ttf", "/Library/Fonts/Arial Unicode.ttf",
+                    "C:/Windows/Fonts/arial.ttf"]
+_ARABIC = re.compile(r"[\u0600-\u06FF]")
+
+
+def _pdf_font() -> str | None:
+    """Register a TTF font with Arabic glyphs; returns its name or None (built-in Helvetica fallback)."""
+    from reportlab.pdfbase import pdfmetrics
+    from reportlab.pdfbase.ttfonts import TTFont
+
+    if "DGSans" in pdfmetrics.getRegisteredFontNames():
+        return "DGSans"
+    for path in _FONT_CANDIDATES:
+        if path and os.path.isfile(path):
+            try:
+                pdfmetrics.registerFont(TTFont("DGSans", path))
+                bold_path = path.replace("DejaVuSans.ttf", "DejaVuSans-Bold.ttf")
+                bold = "DGSans"
+                if bold_path != path and os.path.isfile(bold_path):
+                    pdfmetrics.registerFont(TTFont("DGSans-Bold", bold_path))
+                    bold = "DGSans-Bold"
+                pdfmetrics.registerFontFamily("DGSans", normal="DGSans", bold=bold, italic="DGSans", boldItalic=bold)
+                return "DGSans"
+            except Exception:  # pragma: no cover - unreadable font file
+                continue
+    return None
+
+
+def _shape(text: str) -> str:
+    """Arabic letters must be joined (reshaped) and laid out right-to-left before reportlab draws them."""
+    if not _ARABIC.search(text):
+        return text
+    try:
+        import arabic_reshaper
+        from bidi.algorithm import get_display
+    except ImportError:  # pragma: no cover
+        return text
+    return get_display(arabic_reshaper.reshape(text))
+
+
 def to_pdf(report: Report) -> bytes:
     from xml.sax.saxutils import escape
 
@@ -192,12 +236,23 @@ def to_pdf(report: Report) -> bytes:
     from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
 
     styles = getSampleStyleSheet()
+    font = _pdf_font()
+    if font:
+        for st in ("Title", "Heading2", "BodyText"):
+            styles[st].fontName = font
     small = styles["BodyText"].clone("small", fontSize=8, leading=10)
     body = styles["BodyText"].clone("b", fontSize=9, leading=11)
+    _esc = escape
+
+    def escape(t: str) -> str:  # noqa: F811 - shape Arabic before XML-escaping
+        return _esc(_shape(t))
     out = io.BytesIO()
     doc = SimpleDocTemplate(out, pagesize=A4, leftMargin=15 * mm, rightMargin=15 * mm, topMargin=15 * mm,
                             bottomMargin=15 * mm, title=report.title)
     story = [Paragraph(escape(report.title), styles["Title"]), Paragraph(escape(DISCLAIMER), small), Spacer(1, 6)]
+    if not font and _ARABIC.search(json.dumps(report.content, ensure_ascii=False, default=str)):
+        story.append(Paragraph("NOTE: Arabic text present but no Arabic-capable font found (set PDF_FONT_PATH). "
+                               "Use the DOCX export for Arabic content.", small))
     rows = [[Paragraph(f"<b>{escape(k)}</b>", small),
              Paragraph("<br/>".join(escape(str(x)) for x in v) if isinstance(v, list) else escape(str(v)), small)]
             for k, v in header_info(report).items()]

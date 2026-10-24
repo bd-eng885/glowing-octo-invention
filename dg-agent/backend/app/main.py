@@ -15,6 +15,7 @@ from .engines.documents import ocr_available
 from .routers import analysis, auth_users, reports, sources
 from .seed import seed
 
+logging.basicConfig(level=os.getenv("LOG_LEVEL", "INFO"), format="%(levelname)s:     %(name)s %(message)s")
 log = logging.getLogger("dg")
 
 

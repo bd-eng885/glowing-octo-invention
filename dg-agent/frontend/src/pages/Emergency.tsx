@@ -63,7 +63,8 @@ export function SpillPage() {
 const SITE_FIELDS = ["site_name", "address", "description", "scope_areas", "max_inventory", "receptors", "scenario_assumptions",
   "incident_controller", "deputy_controller", "ert_leader", "dgsa", "hse_officer", "alarm_method", "radio_channels",
   "muster_points", "shelter_locations", "competency_standard", "ppe_inventory", "spill_equipment", "fire_systems",
-  "drain_isolation", "medical_facility", "eyewash_locations", "notification_obligations", "waste_contractor"];
+  "drain_isolation", "medical_facility", "eyewash_locations", "notification_obligations", "waste_contractor",
+  "level1_criteria", "ert_capability", "external_support", "fire_response_time", "legislation", "sds_register"];
 
 export function ErpPage() {
   const { t } = useI18n();
@@ -71,6 +72,8 @@ export function ErpPage() {
   const [scenario, setScenario] = useState("chemical_spill");
   const [site, setSite] = useState<Record<string, string>>({});
   const [subs, setSubs] = useState("UN1830:Sulphuric acid:2000");
+  const [trained, setTrained] = useState("");
+  const [contacts, setContacts] = useState("Emergency services:Civil Defence:998");
   const { result: r, error, busy, run, controls } = useRunner("/api/erp/generate");
   useEffect(() => { api.get("/api/erp/scenarios").then(setScenarios).catch(() => {}); }, []);
   return (
@@ -80,12 +83,16 @@ export function ErpPage() {
         <Field label="Scenario"><select value={scenario} onChange={(e) => setScenario(e.target.value)}>
           {Object.entries(scenarios).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select></Field>
         <Field label="Substances (UN:name:max quantity, separated by commas)"><input value={subs} onChange={(e) => setSubs(e.target.value)} /></Field>
+        <Field label="On-site trained hazmat response team?"><select value={trained} onChange={(e) => setTrained(e.target.value)}>
+          <option value="">— not stated (plan assumes NO containment by site staff) —</option><option value="yes">Yes</option><option value="no">No</option></select></Field>
+        <Field label="Emergency contacts (role:name:phone, separated by commas)"><input value={contacts} onChange={(e) => setContacts(e.target.value)} /></Field>
         <details><summary>Site details ({Object.values(site).filter(Boolean).length}/{SITE_FIELDS.length} completed)</summary>
           <div className="grid">{SITE_FIELDS.map((k) => (
             <Field key={k} label={k.replace(/_/g, " ")}><input value={site[k] || ""} onChange={(e) => setSite({ ...site, [k]: e.target.value })} /></Field>))}</div>
         </details>
         {controls}
-        <button disabled={busy} onClick={() => run({ scenario, site, substances: splitList(subs).map((s) => {
+        <button disabled={busy} onClick={() => run({ scenario, site, capabilities: { trained_hazmat_team: trained },
+          contacts: splitList(contacts).map((c) => { const [role, name, phone] = c.split(":"); return { role, name, phone }; }), substances: splitList(subs).map((s) => {
           const [un, name, q] = s.split(":"); return { un_number: un, chemical_name: name, max_quantity: q ? Number(q) : null };
         }) })}>{busy ? t("loading") : t("generate")}</button>
         <ErrorBox error={error} />

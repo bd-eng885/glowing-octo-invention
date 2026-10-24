@@ -399,7 +399,7 @@ def test_no_entry_for_un(client, op):
 
 
 def test_audit_chain_and_append_only(client, op):
-    v = client.get("/api/audit/verify", headers=op).json()
+    v = client.get("/api/audit/verify", headers=login(client, "reviewer")).json()
     assert v["valid"] and v["checked"] > 5
     with SessionLocal() as db:
         try:

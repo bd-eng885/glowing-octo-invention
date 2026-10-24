@@ -76,10 +76,13 @@ def build(db: Session, kind: str, data: dict, matrix_cfg: dict) -> dict:
             {"criterion": "Head count completed at muster point"}, {"criterion": "Correct escalation / notifications"},
             {"criterion": "Responders used correct PPE per plan"}, {"criterion": "Communication effective"}]
         body["criteria"] = [{**c, "rating": c.get("rating") or REQ.format("rating (met / partially / not met)")} for c in crit]
+        unrated = [c["criterion"] for c in crit if not c.get("rating")]
+        if unrated:
+            missing.append(f"drill ratings for: {', '.join(unrated)}")
         body["timeline"] = data.get("timeline") or []
         body["improvements"] = data.get("improvements") or []
     elif kind == "spill_incident":
-        body["incident"] = {k: data.get(k) or REQ.format(k.replace("_", " ")) for k in
+        body["incident"] = {k: g(k, k.replace("_", " ")) for k in
                             ("date_time", "location", "material", "quantity_released", "cause", "persons_involved",
                              "actions_taken", "notifications_made")}
         body["response_assessment"] = spill.assess(db, data.get("spill") or {})

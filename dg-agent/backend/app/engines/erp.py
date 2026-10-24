@@ -7,9 +7,12 @@ from __future__ import annotations
 
 import datetime as dt
 
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from ..models import RegulatorySource
 from . import spill
+from .provenance import effective_status
 
 SCENARIOS = {
     "chemical_spill": "Chemical spill or leak",
@@ -35,14 +38,45 @@ def _v(site: dict, key: str, label: str):
     return v if v not in (None, "", []) else req(label)
 
 
+def _yes(v) -> bool | None:
+    if v in (None, ""):
+        return None
+    return str(v).strip().lower() in ("1", "true", "yes", "y")
+
+
+def source_references(db: Session) -> list[dict]:
+    """Regulatory sources registered in the library, with their real verification state (never invented)."""
+    out = []
+    for s in db.execute(select(RegulatorySource).where(RegulatorySource.rule_set.in_(("IMDG", "IATA", "UN_MODEL")))
+                        .order_by(RegulatorySource.rule_set, RegulatorySource.code)).scalars():
+        st = effective_status(s)
+        if st in ("superseded",):
+            continue
+        out.append({"source_code": s.code, "rule_set": s.rule_set, "publisher": s.publisher, "title": s.title,
+                    "edition": f"{s.edition} {s.amendment}".strip(),
+                    "effective_date": s.effective_date.isoformat() if s.effective_date else None,
+                    "edition_status": st, "verification_status": s.verification_status,
+                    "content_loaded": s.content_loaded,
+                    "use_in_this_plan": "Reference only — content not loaded in this system" if not s.content_loaded
+                    else ("DEMONSTRATION DATA — not authoritative" if s.verification_status == "demo_seed"
+                          else ("Verified data" if s.verification_status == "verified" else "Unverified data"))})
+    return out
+
+
 def generate(db: Session, scenario: str, site: dict, substances: list[dict], contacts: list[dict] | None = None,
-             author: str | None = None) -> dict:
+             author: str | None = None, capabilities: dict | None = None) -> dict:
     if scenario not in SCENARIOS:
         raise ValueError(f"Unknown scenario '{scenario}'")
     contacts = contacts or []
-    subst_assess = [spill.assess(db, {**s, "trained_responders_available": True, "sds_available": s.get("sds_available"),
+    cap = capabilities or {}
+    trained = _yes(cap.get("trained_hazmat_team"))
+    # The plan never assumes response capability: unknown capability is treated as "not available".
+    subst_assess = [spill.assess(db, {**s, "trained_responders_available": bool(trained),
+                                      "sds_available": s.get("sds_available"),
                                       "quantity_estimate": s.get("max_quantity")}) for s in substances]
     missing = []
+    if trained is None:
+        missing.append("on-site hazmat response capability (trained team yes/no)")
 
     def V(key, label):
         val = _v(site, key, label)
@@ -70,7 +104,7 @@ def generate(db: Session, scenario: str, site: dict, substances: list[dict], con
     ])
     add("Emergency classification and escalation criteria", [
         "Level 1 — Minor: contained, identified material, no exposure, within site capability per approved procedure. "
-        + req("site-specific Level 1 criteria"),
+        f"Site criteria: {V('level1_criteria', 'site-specific Level 1 criteria')}",
         "Level 2 — Site emergency: site ERT activation required.",
         "Level 3 — Major: external emergency services. Mandatory triggers include: unidentified material, fire, "
         "injury/exposure, toxic gas release, explosive/radioactive/infectious material, release to waterway, "
@@ -120,9 +154,21 @@ def generate(db: Session, scenario: str, site: dict, substances: list[dict], con
         "Respiratory protective equipment only for trained, fit-tested personnel.",
         f"PPE available on site: {V('ppe_inventory', 'PPE inventory and locations')}",
     ])
+    if trained:
+        strategy = ("On-site trained hazmat team may undertake containment using methods from SDS Section 6 and "
+                    "verified guidance, within its declared competence and after confirming compatibility of materials "
+                    "(absorbents, booms, neutralisers).")
+    elif trained is False:
+        strategy = ("NO on-site trained hazmat team: site personnel limit actions to alarm, isolation, evacuation and "
+                    "notification. All containment and cleanup by external specialist responders.")
+    else:
+        strategy = (req("on-site hazmat response capability") + " — until confirmed, plan on the basis that site "
+                    "personnel do NOT perform containment.")
     add("Containment and response strategy", [
-        "Containment only by trained responders using methods from SDS Section 6 and verified guidance, after "
-        "confirming compatibility of materials (absorbents, booms, neutralisers).",
+        strategy,
+        f"On-site emergency response team: {V('ert_capability', 'ERT size, shifts and competence level')}",
+        f"External specialist / mutual-aid support: {V('external_support', 'external hazmat responders and expected arrival time')}",
+        f"Fire service response time: {V('fire_response_time', 'expected fire service attendance time')}",
         f"Spill equipment available: {V('spill_equipment', 'spill kits, booms, drain covers and locations')}",
         "No water, absorbent or neutraliser is to be used unless confirmed compatible with the material.",
     ])
@@ -163,17 +209,27 @@ def generate(db: Session, scenario: str, site: dict, substances: list[dict], con
     if not contacts:
         missing.append("emergency contacts")
     add("Emergency contacts and site-specific details", contact_rows)
+    substance_evidence = []
+    for a in subst_assess:
+        for ev in a["evidence"]:
+            substance_evidence.append(f"{ev['un_number']}: data from {ev['source_code']} ({ev['title']}; "
+                                      f"verification: {ev['source_verification_status']}; authoritative: "
+                                      f"{'yes' if ev['authoritative'] else 'NO'})")
     add("Regulatory references and approval history", {
-        "references": ["Applicable IMDG Code edition (sea) — edition to be confirmed by plan owner",
-                       "Applicable IATA DGR edition (air) — edition to be confirmed by plan owner",
-                       "National legislation on major hazards, DG handling in port areas and occupational safety "
-                       + req("jurisdiction-specific legislation"),
-                       "Product SDSs"],
+        "regulatory_sources_in_library": source_references(db),
+        "substance_data_used": substance_evidence or ["No substance data from the source library was used"],
+        "other_references": [
+            "National legislation on major hazards, DG handling in port areas and occupational safety: "
+            + str(V("legislation", "jurisdiction-specific legislation")),
+            "Product SDSs: " + str(V("sds_register", "SDS register location / revision dates")),
+        ],
+        "note": "References list what is registered in this system and its verification state. They are not "
+                "citations of specific paragraphs and do not confirm regulatory compliance.",
         "approval_history": [{"version": "0.1 (draft)", "date": dt.date.today().isoformat(),
                               "author": author or req("author"), "status": "DRAFT — not approved"}],
     })
     return {"title": f"Emergency Response Plan — {SCENARIOS[scenario]}", "scenario": scenario,
             "scenario_label": SCENARIOS[scenario], "sections": sections,
-            "required_inputs_missing": sorted(set(missing)),
+            "required_inputs_missing": sorted(set(missing)), "response_capabilities": cap,
             "status": "DRAFT — requires completion, review and approval by authorised personnel",
             "disclaimer": "Generated template. Not an approved plan until reviewed, completed and authorised."}

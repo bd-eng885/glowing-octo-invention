@@ -42,7 +42,7 @@ export function VerifyPage({ fixedMode }: { fixedMode?: string }) {
         <p className="muted">{MODE_INFO[mode]}</p>
         {cov && (
           <div className={`alert ${cov.authoritative_content_available ? "info" : "warn"}`}>
-            {mode} datasets: {cov.sources.map((s: Json) => `${s.source_code} (${s.source_status}, ${s.source_verification_status}${s.content_loaded ? "" : ", content not loaded"})`).join(" · ") || "none"}.
+            {mode} Dangerous Goods List: <b>{cov.dgl_state}</b> ({cov.dgl_entries} entries). Sources: {cov.sources.map((s: Json) => `${s.source_code} (${s.source_status}, ${s.source_verification_status}, ${s.dgl_entries} entries${s.rule_tables.length ? ", rule tables " + s.rule_tables.join("/") : ""})`).join(" · ") || "none"}.
             {!cov.authoritative_content_available && " No verified, in-force dataset — results will be NOT VERIFIED."}
           </div>
         )}
@@ -166,6 +166,7 @@ export function IdentifyPage() {
         <Card title={<>Overall: <Badge s={r.overall.category} /></>}>
           <SavedNote id={r.report_id} />
           <p>{r.overall.category_description} {r.overall.message}</p>
+          {r.unmatched_un_numbers?.length > 0 && <div className="alert warn">No loaded data for: {r.unmatched_un_numbers.join(", ")}</div>}
           {r.ghs_note && <div className="alert info">{r.ghs_note}</div>}
           {r.candidates.map((c: Json, i: number) => (
             <div key={i} className="candidate">
