@@ -91,9 +91,19 @@ footer { color: var(--muted); font-size: 13px; padding-block: 0 30px; }
   </div>
 </header>
 <div class="notice"><div class="wrap" data-t="demo">Demonstration data only. No licensed IMDG Code or IATA DGR content is loaded, so every result is NOT VERIFIED and needs review by a qualified person.</div></div>
-<main class="wrap" id="main"></main>
+<main class="wrap" id="main"><div class="panel"><p id="boot">Loading the assistant…</p></div></main>
 <footer class="wrap"><p data-t="foot">This browser version runs the same rule engines as the full application. Login, saved reports, approvals, audit trail, SDS upload/OCR, ERP and inspection reports, and PDF/Word export need the full application on a server.</p></footer>
 
+<script>
+/* ES5 guard: if the app script cannot run in this browser, say so instead of leaving a blank page. */
+window.__dgErr = function (msg) {
+  var m = document.getElementById("main");
+  if (m) m.innerHTML = '<div class="panel"><div class="status bad"><strong>This browser could not start the assistant</strong>' +
+    '<span>' + String(msg).replace(/[<>&]/g, "") + '</span><span>Update your browser, or open the page in a current version of Chrome, Safari, Edge or Firefox.</span></div></div>';
+};
+window.onerror = function (msg) { if (!window.__dgStarted) window.__dgErr(msg); };
+setTimeout(function () { if (!window.__dgStarted) window.__dgErr("The page script did not start."); }, 5000);
+</script>
 <script>
 /*__DATA__*/
 /*__ENGINE__*/
@@ -274,5 +284,5 @@ function chrome() {
   document.querySelectorAll("#tabs button").forEach((b) => b.addEventListener("click", () => show(b.dataset.k)));
 }
 $("#lang").addEventListener("click", () => { lang = lang === "en" ? "ar" : "en"; try { localStorage.setItem("dg_lang", lang); } catch (e) {} chrome(); show(current); });
-chrome(); show("verify");
+chrome(); show("verify"); window.__dgStarted = true;
 </script>

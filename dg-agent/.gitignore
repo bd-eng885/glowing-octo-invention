@@ -9,3 +9,4 @@ frontend/dist/
 browser-demo/dist/
 browser-demo/data.js
 browser-demo/js_out.json
+browser-demo/node_modules/

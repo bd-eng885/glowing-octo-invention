@@ -10,6 +10,8 @@ const E = (() => {
   const ENTRIES = DATA.un.map((e, i) => ({ ...e, id: i + 1 }));
 
   // ---------------------------------------------------------------- text utilities
+  // RegExp.exec loop instead of String.matchAll, which older mobile browsers lack.
+  function allMatches(re, text) { const out = []; let m; re.lastIndex = 0; while ((m = re.exec(text)) !== null) out.push(m); return out; }
   const OCR = { O: "0", o: "0", I: "1", l: "1", S: "5" };
   function normalizeUN(value) {
     const notes = [];
@@ -26,7 +28,7 @@ const E = (() => {
   }
   function findUNs(text) {
     const out = [], seen = new Set();
-    for (const m of (text || "").matchAll(/\b(UN|ID)\s*[-:]?\s*([0-9OIlS]{4})\b/gi)) {
+    for (const m of allMatches(/\b(UN|ID)\s*[-:]?\s*([0-9OIlS]{4})\b/gi, text || "")) {
       const [un, notes] = normalizeUN(m[0]);
       if (un && !seen.has(un)) { seen.add(un); out.push([un, notes]); }
     }
@@ -40,7 +42,7 @@ const E = (() => {
   }
   function findCAS(text) {
     const out = [], seen = new Set();
-    for (const m of (text || "").matchAll(/\b(\d{2,7})-(\d{2})-(\d)\b/g)) {
+    for (const m of allMatches(/\b(\d{2,7})-(\d{2})-(\d)\b/g, text || "")) {
       if (seen.has(m[0])) continue;
       seen.add(m[0]); out.push({ cas: m[0], checksum_valid: casOK(m[0]) });
     }

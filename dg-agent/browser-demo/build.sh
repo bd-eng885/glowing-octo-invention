@@ -12,7 +12,6 @@ for s in d["sources"]:
     s.pop("location", None)
 data = "const DATA=" + json.dumps(d, ensure_ascii=False, separators=(",", ":")) + ";\n"
 open("data.js", "w").write(data)
-page = open("ui.html").read().replace("/*__DATA__*/", data).replace("/*__ENGINE__*/", open("engine.js").read())
-open("dist/dg-compliance-assistant.html", "w").write(page)
-print("built dist/dg-compliance-assistant.html")
 PY
+# Inline data + engine and transpile to ES2018 for older mobile browsers (needs: npm i esbuild@0.24.0)
+node build.js && mv dg-compliance-assistant.html dist/
