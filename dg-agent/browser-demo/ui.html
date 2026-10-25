@@ -1,0 +1,278 @@
+<title>DG Compliance Assistant</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=IBM+Plex+Mono:wght@500&family=IBM+Plex+Sans+Arabic:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: sticky brand bar + scrollable module tabs; one working panel per module, results below the form. */
+:root {
+  --bg: #eef1f4; --surface: #ffffff; --ink: #13202b; --muted: #586674; --line: #d6dde4; --accent: #c2410c; --accent-ink: #ffffff;
+  --bad: #b42318; --bad-bg: #fdecea; --warn: #8a5300; --warn-bg: #fff3d6; --info: #1d4ed8; --info-bg: #e8effd;
+  --good: #1e6b34; --good-bg: #e5f3e9; --neutral: #3f4b57; --neutral-bg: #e6eaee;
+  --f-display: "Barlow Condensed", "Arial Narrow", sans-serif;
+  --f-body: "IBM Plex Sans", "IBM Plex Sans Arabic", system-ui, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0d1318; --surface: #151d24; --ink: #e3e9ef; --muted: #95a3b0; --line: #26323d; --accent: #fb7a3c; --accent-ink: #1a0d05;
+  --bad: #ff8a80; --bad-bg: #3a1716; --warn: #f7c35f; --warn-bg: #362a10; --info: #8ab4ff; --info-bg: #14263f;
+  --good: #7fcf95; --good-bg: #15301e; --neutral: #c3ccd5; --neutral-bg: #232d37; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #0d1318; --surface: #151d24; --ink: #e3e9ef; --muted: #95a3b0; --line: #26323d; --accent: #fb7a3c; --accent-ink: #1a0d05;
+  --bad: #ff8a80; --bad-bg: #3a1716; --warn: #f7c35f; --warn-bg: #362a10; --info: #8ab4ff; --info-bg: #14263f;
+  --good: #7fcf95; --good-bg: #15301e; --neutral: #c3ccd5; --neutral-bg: #232d37; color-scheme: dark; }
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font: 15px/1.5 var(--f-body); }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--surface); }
+.wrap { max-width: 1080px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+header { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--surface); border-bottom: 1px solid var(--line); }
+.bar { display: flex; align-items: center; gap: 12px; padding-block: 10px; }
+.brand { flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; }
+.brand h1 { font: 700 22px/1 var(--f-display); letter-spacing: .02em; text-transform: uppercase; margin: 0; }
+.brand small { display: block; color: var(--muted); font-size: 12px; }
+.diamond { width: 30px; height: 30px; flex: none; transform: rotate(45deg); border: 2px solid var(--accent); border-radius: 3px; display: grid; place-items: center; }
+.diamond span { transform: rotate(-45deg); font: 700 13px var(--f-display); color: var(--accent); }
+.tabs { display: flex; gap: 4px; overflow-x: auto; padding-block: 0 8px; scrollbar-width: thin; }
+.tabs button { flex: none; background: none; border: 1px solid transparent; color: var(--muted); font: 600 14px var(--f-body); padding: 7px 12px; border-radius: 6px; cursor: pointer; }
+.tabs button[aria-selected="true"] { background: var(--neutral-bg); color: var(--ink); border-color: var(--line); }
+.notice { background: var(--warn-bg); color: var(--warn); font-size: 13px; font-weight: 600; padding-block: 8px; }
+main { padding-block: 18px 40px; display: flex; flex-direction: column; gap: 16px; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 18px; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+h2 { font: 700 26px/1.1 var(--f-display); text-transform: uppercase; letter-spacing: .02em; margin: 0; text-wrap: balance; }
+h3 { font: 700 18px/1.2 var(--f-display); text-transform: uppercase; letter-spacing: .03em; margin: 0; }
+h4 { margin: 0 0 4px; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+p { margin: 0; max-width: 70ch; }
+.muted { color: var(--muted); } .small { font-size: 13px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px; }
+label.f { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--muted); min-width: 0; }
+input, select, textarea { font: inherit; font-size: 15px; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; width: 100%; min-width: 0; }
+input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.btn { background: var(--accent); color: var(--accent-ink); border: 0; border-radius: 6px; font: 600 15px var(--f-body); padding: 10px 18px; cursor: pointer; }
+.btn.ghost { background: none; color: var(--accent); border: 1px solid var(--accent); padding: 7px 12px; font-size: 14px; }
+.check { display: inline-flex; gap: 6px; align-items: center; font-size: 14px; }
+.check input { width: auto; }
+.checks { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 6px 14px; }
+.pill { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 12.5px; font-weight: 600; background: var(--neutral-bg); color: var(--neutral); }
+.pill.bad { background: var(--bad-bg); color: var(--bad); } .pill.warn { background: var(--warn-bg); color: var(--warn); }
+.pill.info { background: var(--info-bg); color: var(--info); } .pill.good { background: var(--good-bg); color: var(--good); }
+.status { display: flex; flex-direction: column; gap: 6px; padding: 12px 14px; border-radius: 8px; background: var(--neutral-bg); }
+.status.bad { background: var(--bad-bg); color: var(--bad); } .status.warn { background: var(--warn-bg); color: var(--warn); }
+.status strong { font: 700 20px/1.15 var(--f-display); letter-spacing: .02em; text-transform: uppercase; }
+.list { margin: 0; padding-inline-start: 20px; display: flex; flex-direction: column; gap: 3px; }
+.scroll { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
+th, td { border-bottom: 1px solid var(--line); padding: 7px 8px; text-align: start; vertical-align: top; }
+th { color: var(--muted); font-weight: 600; font-size: 12.5px; }
+code, .mono { font-family: var(--f-mono); font-size: 13px; }
+table.edit td { padding: 3px; } table.edit input { min-width: 84px; padding: 6px 8px; font-size: 14px; }
+.matrix th, .matrix td { text-align: center; border: 1px solid var(--line); min-width: 74px; }
+.c-conflict { background: var(--bad-bg); color: var(--bad); } .c-requirement { background: var(--warn-bg); color: var(--warn); }
+.c-hold, .c-no_pair_in_loaded_subset { background: var(--neutral-bg); color: var(--neutral); } .c-no_general_requirement { background: var(--info-bg); color: var(--info); }
+.c-diag { background: var(--line); }
+.pair { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; display: flex; flex-direction: column; gap: 6px; }
+.cand { border-inline-start: 3px solid var(--accent); padding-inline-start: 12px; display: flex; flex-direction: column; gap: 6px; }
+details summary { cursor: pointer; font-weight: 600; }
+.cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }
+.cols > * { min-width: 0; }
+.legend { display: flex; gap: 6px; flex-wrap: wrap; font-size: 12.5px; }
+.legend span { padding: 2px 8px; border-radius: 4px; }
+footer { color: var(--muted); font-size: 13px; padding-block: 0 30px; }
+@media (prefers-reduced-motion: no-preference) { .panel.result { animation: in .18s ease-out; } @keyframes in { from { opacity: .4; transform: translateY(4px); } } }
+</style>
+
+<header>
+  <div class="wrap">
+    <div class="bar">
+      <div class="brand"><div class="diamond" aria-hidden="true"><span>DG</span></div>
+        <div><h1 data-t="app">DG Compliance Assistant</h1><small data-t="tag">Browser demo · decision support for qualified DG / HSE personnel</small></div></div>
+      <button class="btn ghost" id="lang" type="button">العربية</button>
+    </div>
+    <nav class="tabs" role="tablist" id="tabs"></nav>
+  </div>
+</header>
+<div class="notice"><div class="wrap" data-t="demo">Demonstration data only. No licensed IMDG Code or IATA DGR content is loaded, so every result is NOT VERIFIED and needs review by a qualified person.</div></div>
+<main class="wrap" id="main"></main>
+<footer class="wrap"><p data-t="foot">This browser version runs the same rule engines as the full application. Login, saved reports, approvals, audit trail, SDS upload/OCR, ERP and inspection reports, and PDF/Word export need the full application on a server.</p></footer>
+
+<script>
+/*__DATA__*/
+/*__ENGINE__*/
+</script>
+<script>
+const T = {
+  en: { app: "DG Compliance Assistant", tag: "Browser demo · decision support for qualified DG / HSE personnel",
+    demo: "Demonstration data only. No licensed IMDG Code or IATA DGR content is loaded, so every result is NOT VERIFIED and needs review by a qualified person.",
+    foot: "This browser version runs the same rule engines as the full application. Login, saved reports, approvals, audit trail, SDS upload/OCR, ERP and inspection reports, and PDF/Word export need the full application on a server.",
+    verify: "UN verification", identify: "Identify", seg: "Segregation", spill: "Spill response", data: "Data sources",
+    run: "Run check", mode: "Transport mode", un: "UN number", psn: "Proper Shipping Name", cls: "Class / division", sub: "Subsidiary hazards", pg: "Packing group",
+    name: "Chemical / trade name", cas: "CAS number", text: "Free text / cargo description", arr: "Arrangement", add: "Add item", lang: "العربية" },
+  ar: { app: "مساعد الامتثال للبضائع الخطرة", tag: "نسخة المتصفح · أداة دعم قرار للمختصين المؤهلين",
+    demo: "بيانات تجريبية فقط. لم يتم تحميل أي محتوى مرخّص من مدونة IMDG أو لوائح IATA، لذلك كل نتيجة غير موثّقة وتتطلب مراجعة شخص مؤهل.",
+    foot: "تشغّل هذه النسخة محركات القواعد نفسها الموجودة في التطبيق الكامل. تسجيل الدخول والتقارير والاعتمادات وسجل التدقيق ورفع صحائف البيانات وخطط الطوارئ والتصدير تتطلب التطبيق الكامل على خادم.",
+    verify: "التحقق من رقم الأمم المتحدة", identify: "التحديد", seg: "الفصل", spill: "الاستجابة للانسكاب", data: "مصادر البيانات",
+    run: "تشغيل الفحص", mode: "وسيلة النقل", un: "رقم الأمم المتحدة", psn: "الاسم الرسمي للشحن", cls: "الرتبة / القسم", sub: "المخاطر الثانوية", pg: "مجموعة التعبئة",
+    name: "الاسم الكيميائي / التجاري", cas: "رقم CAS", text: "نص حر / وصف الشحنة", arr: "الترتيب", add: "إضافة مادة", lang: "English" } };
+let lang = "en";
+try { lang = localStorage.getItem("dg_lang") || "en"; } catch (e) {}
+const t = (k) => (T[lang][k] ?? T.en[k]);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const $ = (s, r = document) => r.querySelector(s);
+function tone(s) {
+  const v = String(s || "").toUpperCase();
+  if (/CONFLICT|DISCREPANCY|MAJOR|INCOMPATIBLE|HIGH/.test(v)) return "bad";
+  if (/HOLD|NOT VERIFIED|INSUFFICIENT|REQUIRED|CAUTION|UNKNOWN|CANDIDATE|MEDIUM|WITHHELD/.test(v)) return "warn";
+  if (/WITH CONDITIONS|NO SCREENING|NO GENERAL|NO PAIR|CONDITION/.test(v)) return "info";
+  if (/^MATCH$|SITE EMERGENCY/.test(v)) return "good";
+  return "";
+}
+const pill = (s) => `<span class="pill ${tone(s)}">${esc(s)}</span>`;
+const list = (title, items) => items && items.length ? `<div><h4>${esc(title)}</h4><ul class="list">${items.map((i) => `<li>${esc(i)}</li>`).join("")}</ul></div>` : "";
+const field = (id, label, value = "", ph = "") => `<label class="f" for="${id}">${esc(label)}<input id="${id}" value="${esc(value)}" placeholder="${esc(ph)}"></label>`;
+const split = (s) => s.split(",").map((x) => x.trim()).filter(Boolean);
+const evid = (ev) => ev && ev.length ? `<details><summary>Evidence &amp; source (${ev.length})</summary>${ev.map((e) => `<p class="small">${esc(e.title)} · ${esc(e.edition)} · <code>${esc(e.source_code)}</code> · section: ${esc(e.section_ref)} · authoritative: <b>${e.authoritative ? "yes" : "NO"}</b></p>`).join("")}</details>` : "";
+
+// ------------------------------------------------------------------ modules
+const MODULES = {
+  verify: {
+    form: () => `<div class="panel"><h2>${t("verify")}</h2>
+      <p class="muted small">Field-by-field check of declared shipping details. IMDG and IATA are separate rule sets; neither has data loaded here, so results compare against UN Model demo data for reference only.</p>
+      <div class="grid">
+        <label class="f" for="v_mode">${t("mode")}<select id="v_mode"><option value="IMDG">IMDG (sea)</option><option value="IATA">IATA DGR (air)</option><option value="UN_MODEL">UN Model Regulations</option></select></label>
+        ${field("v_un", t("un"), "UN1230", "UN1203")}${field("v_psn", t("psn"), "METHANOL")}${field("v_cls", t("cls"), "6.1")}
+        ${field("v_sub", t("sub") + " ('-' = none)", "", "6.1")}
+        <label class="f" for="v_pg">${t("pg")}<select id="v_pg"><option value="">— not declared —</option><option>I</option><option selected>II</option><option>III</option></select></label>
+      </div>
+      <div class="row"><button class="btn" id="go">${t("run")}</button><span class="small muted">Example: methanol declared with class 6.1, which is its subsidiary hazard.</span></div></div>`,
+    run() {
+      const sub = $("#v_sub").value.trim();
+      const d = { un_number: $("#v_un").value, proper_shipping_name: $("#v_psn").value || null, hazard_class: $("#v_cls").value || null,
+        packing_group: $("#v_pg").value || null, subsidiary_hazards: sub === "" ? null : sub === "-" ? [] : split(sub) };
+      const r = E.verify(d, $("#v_mode").value);
+      const e = r.matched_entry;
+      return `<div class="status ${tone(r.status)}"><strong>${esc(r.status)}</strong>
+          ${r.provisional_status && r.provisional_status !== r.status ? `<span>Provisional result against demo data: ${pill(r.provisional_status)}</span>` : ""}</div>
+        <p class="small muted">${esc(r.decision)}. ${esc(r.general_limitation)}</p>
+        ${r.checks.length ? `<div class="scroll"><table><thead><tr><th>Field</th><th>Result</th><th>Declared</th><th>Reference</th><th>Explanation</th></tr></thead><tbody>
+          ${r.checks.map((c) => `<tr><td>${esc(c.field.replace(/_/g, " "))}</td><td>${pill(c.result.toUpperCase())}</td><td>${esc(Array.isArray(c.declared) ? c.declared.join(", ") : c.declared ?? "—")}</td><td>${esc(Array.isArray(c.reference) ? c.reference.join(", ") || "—" : c.reference ?? "—")}</td><td>${esc(c.message)}</td></tr>`).join("")}
+        </tbody></table></div>` : ""}
+        ${e ? `<div class="cols"><div>${list("Reference entry (demo)", [`${e.un_number} — ${e.proper_shipping_name}`, `Class ${e.hazard_class}${e.subsidiary_hazards.length ? ` (subsidiary ${e.subsidiary_hazards.join(", ")})` : ""}`, `Packing group: ${e.packing_groups.join(" / ") || "not applicable"}`, "Special provisions: NOT LOADED"])}</div>
+          <div>${list("Labels & marks (derived)", [...e.labelling.labels, ...e.labelling.marks])}</div></div>` : ""}
+        ${list("Corrective actions", r.corrective_actions)}${list("Data limitations", r.data_limitations)}${list("Notes", r.notes)}${evid(r.evidence)}`;
+    } },
+  identify: {
+    form: () => `<div class="panel"><h2>${t("identify")}</h2>
+      <p class="muted small">Matches by name, synonym, UN number or CAS (with check-digit validation). A match is a candidate, never a confirmed classification. No match never means "not dangerous".</p>
+      <div class="grid">${field("i_name", t("name"), "")}${field("i_un", t("un"), "")}${field("i_cas", t("cas"), "")}</div>
+      <label class="f" for="i_text">${t("text")}<textarea id="i_text" rows="2">Degreaser blend, UN1992, CAS 67-56-1 and CAS 108-88-3, H225</textarea></label>
+      <div class="row"><button class="btn" id="go">${t("run")}</button><span class="small muted">Example: a mixture whose UN number has no loaded data.</span></div></div>`,
+    run() {
+      const r = E.identify({ name: $("#i_name").value || null, un: $("#i_un").value || null, cas: $("#i_cas").value || null, text: $("#i_text").value || null });
+      return `<div class="status ${tone(r.overall.category)}"><strong>${esc(r.overall.category)}</strong><span>${esc(r.overall.message)}</span></div>
+        ${r.ghs_note ? `<p class="small">${esc(r.ghs_note)}</p>` : ""}
+        ${r.candidates.map((c) => `<div class="cand"><div class="row">${pill(c.category)}<b class="mono">${esc(c.entry.un_number)}</b><span>${esc(c.entry.proper_shipping_name)}</span></div>
+          <span class="small muted">Class ${esc(c.entry.hazard_class)}${c.entry.subsidiary_hazards.length ? ` (${esc(c.entry.subsidiary_hazards.join(", "))})` : ""} · PG ${esc(c.entry.packing_groups.join("/") || "n/a")} · confidence: ${esc(c.confidence)}</span>
+          ${list("Why", c.match_reasons)}</div>`).join("")}
+        ${list("Missing information", r.missing_information)}${list("Notes", r.notes)}`;
+    } },
+  seg: {
+    items: [
+      { id: "petrol", un_number: "UN1203", hazard_class: "", subsidiary: "", quantity: "4 x 200 L", package: "steel drums" },
+      { id: "peroxide", un_number: "UN2014", hazard_class: "", subsidiary: "", quantity: "10 x 25 L", package: "jerricans" },
+      { id: "caustic", un_number: "UN1823", hazard_class: "", subsidiary: "", quantity: "20 x 25 kg", package: "bags" },
+      { id: "hcl", un_number: "UN1789", hazard_class: "", subsidiary: "", quantity: "2 x 200 L", package: "drums" } ],
+    form() {
+      const cols = [["id", "ID"], ["un_number", t("un")], ["hazard_class", t("cls")], ["subsidiary", t("sub")], ["quantity", "Quantity"], ["package", "Package"]];
+      return `<div class="panel"><h2>${t("seg")}</h2>
+        <p class="muted small">Every pair is checked using primary and subsidiary hazards (most stringent applies), plus a non-regulatory chemistry screen. Leave class blank to look it up from the UN number.</p>
+        <div class="grid">
+          <label class="f" for="s_mode">${t("mode")}<select id="s_mode"><option value="IMDG">IMDG (sea)</option><option value="IATA">IATA DGR (air)</option><option value="WAREHOUSE">Warehouse storage (screening)</option></select></label>
+          <label class="f" for="s_arr">${t("arr")}<select id="s_arr"><option value="same_ctu">Same container / vehicle</option><option value="same_hold">Same hold, separate containers</option><option value="same_uld">Same ULD / aircraft hold</option><option value="">Not specified</option></select></label>
+        </div>
+        <div class="scroll"><table class="edit"><thead><tr>${cols.map(([, l]) => `<th>${esc(l)}</th>`).join("")}<th></th></tr></thead><tbody>
+          ${this.items.map((it, i) => `<tr>${cols.map(([k]) => `<td><input id="s_${i}_${k}" data-i="${i}" data-k="${k}" value="${esc(it[k])}" aria-label="${esc(k)} ${i + 1}"></td>`).join("")}<td><button class="btn ghost" data-del="${i}" aria-label="Remove">×</button></td></tr>`).join("")}
+        </tbody></table></div>
+        <div class="row"><button class="btn ghost" id="s_add">+ ${t("add")}</button><button class="btn" id="go">${t("run")}</button></div></div>`;
+    },
+    bind() {
+      document.querySelectorAll("table.edit input").forEach((el) => el.addEventListener("input", () => { this.items[el.dataset.i][el.dataset.k] = el.value; }));
+      document.querySelectorAll("[data-del]").forEach((b) => b.addEventListener("click", () => { this.items.splice(+b.dataset.del, 1); show("seg", true); }));
+      $("#s_add").addEventListener("click", () => { this.items.push({ id: `item${this.items.length + 1}`, un_number: "", hazard_class: "", subsidiary: "", quantity: "", package: "" }); show("seg", false); });
+    },
+    run() {
+      if (this.items.length < 2) return `<div class="status warn"><strong>Add at least two items</strong></div>`;
+      const mode = $("#s_mode").value;
+      const r = E.segregate(this.items.map((i) => ({ id: i.id, un_number: i.un_number || undefined, hazard_class: i.hazard_class || undefined, subsidiary_hazards: split(i.subsidiary), quantity: i.quantity, package: i.package })), mode, $("#s_arr").value || null);
+      const ids = r.items.map((i) => i.id), cell = {};
+      for (const p of r.pairs) cell[p.a + "|" + p.b] = cell[p.b + "|" + p.a] = p;
+      return `<div class="status ${tone(r.decision)}"><strong>${esc(r.decision)}</strong>${r.table ? `<span class="small">Rule table: ${esc(r.table)}</span>` : ""}</div>
+        <div class="scroll"><table class="matrix"><thead><tr><th></th>${ids.map((i) => `<th>${esc(i)}</th>`).join("")}</tr></thead><tbody>
+          ${ids.map((a) => `<tr><th>${esc(a)}</th>${ids.map((b) => { if (a === b) return `<td class="c-diag"></td>`; const p = cell[a + "|" + b];
+            return `<td class="c-${esc(p.status)}"><b>${esc(p.code ?? "?")}</b><br><span class="small">${esc(p.status.replace(/_/g, " "))}</span></td>`; }).join("")}</tr>`).join("")}
+        </tbody></table></div>
+        <div class="legend"><span class="c-conflict">conflict</span><span class="c-requirement">requirement to verify</span><span class="c-hold">hold / manual</span><span class="c-no_general_requirement">no general table requirement (not a clearance)</span></div>
+        ${r.pairs.map((p) => `<div class="pair"><div class="row"><b>${esc(p.a)} ↔ ${esc(p.b)}</b>${pill(p.status.replace(/_/g, " ").toUpperCase())}<span class="small">${esc(p.label || "")}${p.governing_combination ? ` · governing: class ${esc(p.governing_combination.join(" vs "))}` : ""}</span></div>
+          ${list("Findings", p.issues)}${list("Conditions / manual checks", p.conditions)}</div>`).join("")}
+        ${r.alternative ? list("Alternative arrangement (for qualified review)", [r.alternative]) : ""}
+        ${list("Missing information", r.missing_information)}${list("Notes", r.notes)}${list("Manual checks", r.manual_checks)}${list("Limitations", r.limitations)}`;
+    } },
+  spill: {
+    flags: [["fire", "Fire present / imminent"], ["vapour_release", "Vapour / gas release"], ["injuries_or_exposure", "Injury or exposure"], ["drains_nearby", "Drains nearby"],
+      ["waterway_nearby", "Waterway nearby"], ["pressure_receptacle_involved", "Pressure receptacle involved"], ["trained_responders_available", "Trained hazmat responders on site"], ["sds_available", "SDS available"]],
+    form() {
+      return `<div class="panel"><h2>${t("spill")}</h2>
+        <div class="status bad"><span>In a real emergency: protect life, raise the alarm, isolate the area and call the emergency team first. This tool supports, and does not replace, the approved site ERP, the SDS and specialist responders.</span></div>
+        <div class="grid">${field("p_name", t("name"), "", "leave blank if unknown")}${field("p_un", t("un"), "")}${field("p_cls", t("cls"), "")}${field("p_q", "Estimated quantity (L or kg)", "50")}</div>
+        <div class="checks">${this.flags.map(([k, l]) => `<label class="check" for="p_${k}"><input type="checkbox" id="p_${k}" ${k === "vapour_release" || k === "trained_responders_available" ? "checked" : ""}> ${esc(l)}</label>`).join("")}</div>
+        <div class="row"><button class="btn" id="go">${t("run")}</button><span class="small muted">Example: an unidentified liquid releasing vapour.</span></div></div>`;
+    },
+    run() {
+      const d = { chemical_name: $("#p_name").value || null, un_number: $("#p_un").value || null, hazard_class: $("#p_cls").value || null,
+        quantity_estimate: $("#p_q").value === "" ? null : Number($("#p_q").value) };
+      for (const [k] of this.flags) d[k] = $("#p_" + k).checked;
+      const r = E.spill(d);
+      return `<div class="status ${tone(r.response_level)}"><strong>${esc(r.response_level)}</strong></div>
+        <div class="cols"><div>${list("Escalation triggers", r.escalation_triggers)}</div><div>${list("A. Immediate priorities", r.immediate_priorities)}</div></div>
+        <div><h4>B. Hazard assessment</h4>${r.hazard_assessment.length ? r.hazard_assessment.map((h) => list(`${h.hazard} — ${h.name}${h.role ? ` (${h.role})` : ""}`, h.considerations)).join("") : `<p class="small">No hazard data — treat as unknown.</p>`}</div>
+        <div class="cols"><div>${list("Precautions — do NOT", r.precautions_do_not)}${list("Containment", r.containment)}${list("PPE", [r.ppe])}</div>
+          <div>${list("C. Response references", r.response_references)}${list("Medical & exposure", r.medical)}${list("Notifications", r.notifications)}</div></div>
+        ${list("Incompatible material groups (screening)", r.incompatible_material_groups)}${list("Notes", r.data_notes)}${list("D. Limitations", r.limitations)}${evid(r.evidence)}`;
+    } },
+  data: {
+    form() {
+      const rows = DATA.sources.map((s) => `<tr><td><code>${esc(s.code)}</code></td><td>${esc(s.rule_set)}</td><td>${esc(s.title)}<div class="small muted">${esc(s.edition)} ${esc(s.amendment)}</div></td><td>${esc(s.effective_date || "—")}</td><td>${pill(s.status.replace(/_/g, " ").toUpperCase())}</td><td>${pill(s.verification_status.replace(/_/g, " ").toUpperCase())}</td><td>${s.content_loaded ? "loaded" : "not loaded"}</td></tr>`).join("");
+      return `<div class="panel"><h2>${t("data")}</h2>
+        <p class="small">Every result traces to one of these records. Only the three demonstration datasets contain data; the IMDG, IATA and UN publications are listed as catalogue records with no content loaded, because they are licensed and must be supplied by your organisation.</p>
+        <div class="scroll"><table><thead><tr><th>Code</th><th>Rule set</th><th>Title / edition</th><th>Effective</th><th>Status</th><th>Verification</th><th>Content</th></tr></thead><tbody>${rows}</tbody></table></div>
+        <details><summary>Demo UN entries (${E.ENTRIES.length})</summary><div class="scroll"><table><thead><tr><th>UN</th><th>Name</th><th>Class</th><th>Sub</th><th>PG</th></tr></thead><tbody>
+          ${E.ENTRIES.map((e) => `<tr><td class="mono">${esc(e.un_number)}</td><td>${esc(e.proper_shipping_name)}</td><td>${esc(e.hazard_class)}</td><td>${esc(e.subsidiary_hazards.join(", "))}</td><td>${esc(e.packing_groups.join("/") || "—")}</td></tr>`).join("")}
+        </tbody></table></div></details>
+        <p class="small muted">Dates on the IMDG and IATA records are catalogue metadata to be confirmed by your data steward.</p></div>`;
+    } },
+};
+
+let current = "verify";
+function show(key, autorun = true) {
+  current = key;
+  const m = MODULES[key];
+  $("#main").innerHTML = m.form() + `<div class="panel result" id="out" ${m.run ? "" : "hidden"}></div>`;
+  document.querySelectorAll("#tabs button").forEach((b) => b.setAttribute("aria-selected", String(b.dataset.k === key)));
+  m.bind && m.bind();
+  const go = $("#go");
+  if (go) go.addEventListener("click", () => render(m));
+  if (m.run && autorun) render(m);
+}
+function render(m) {
+  const out = $("#out");
+  try { out.innerHTML = m.run(); } catch (e) { out.innerHTML = `<div class="status bad"><strong>Check failed</strong><span>${esc(e.message)}</span></div>`; }
+  out.hidden = false;
+}
+function chrome() {
+  document.documentElement.lang = lang; document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
+  document.querySelectorAll("[data-t]").forEach((el) => { el.textContent = t(el.dataset.t); });
+  $("#lang").textContent = t("lang");
+  $("#tabs").innerHTML = ["verify", "identify", "seg", "spill", "data"].map((k) => `<button role="tab" data-k="${k}" type="button">${esc(t(k))}</button>`).join("");
+  document.querySelectorAll("#tabs button").forEach((b) => b.addEventListener("click", () => show(b.dataset.k)));
+}
+$("#lang").addEventListener("click", () => { lang = lang === "en" ? "ar" : "en"; try { localStorage.setItem("dg_lang", lang); } catch (e) {} chrome(); show(current); });
+chrome(); show("verify");
+</script>

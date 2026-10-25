@@ -6,3 +6,6 @@ backend/storage/
 frontend/node_modules/
 frontend/dist/
 .env
+browser-demo/dist/
+browser-demo/data.js
+browser-demo/js_out.json
